@@ -34,6 +34,7 @@ void printBMPHeaders(BMPFile* bmpf) {
 }
 
 void printField(char field[128][128]) {
+    printf("\n");
     for (int i = 0; i < 128; i++) {
         for (int j = 0; j < 128; j++) {
             printf("%c", field[i][j]);
@@ -131,14 +132,12 @@ int main() {
     printBMPHeaders(bmpf);
     printf("\n");
     makeMatrix(bmpf, field);
-    printField(field);
-    updateField(field, bmpf);
-    printField(field);
-    /*
-    bmpf = save(2,bmpf,field);
-     */
-    updateField(field, bmpf);
-    printField(field);
+
+    for (int i = 2; i < 100; i++) {
+        updateField(field, bmpf);
+        save(i,bmpf,field);
+    }
+
     freeBMPfile(bmpf);
     return 0;
 }

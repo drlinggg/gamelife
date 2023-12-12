@@ -51,17 +51,14 @@ BMPFile* load(char* fname) {
     return bmp_file;
 }
 
-BMPFile* save(int n, BMPFile* bmpf, char matrix[128][128]) {
+void save(int n, BMPFile* bmpf, char matrix[128][128]) {
     FILE *fptr;
-    BMPFile new_bmpf;
-    new_bmpf.bhdr = bmpf->bhdr;
-    new_bmpf.dhdr = bmpf->dhdr;
-    new_bmpf.data = (unsigned char*)malloc(bmpf->dhdr.data_size);
+    unsigned char* data = (unsigned char*)malloc(bmpf->dhdr.data_size);
     //надо перенести значение матрицы в бмпшку и сохранить ее;
     //биты слева направо снизу вверх
     int pos = 0;
-    for (int i = 0; i < new_bmpf.dhdr.height; i++) {
-        for (int j = 0; j < new_bmpf.dhdr.widht; j+=8) {
+    for (int i = 0; i < bmpf->dhdr.height; i++) {
+        for (int j = 0; j < bmpf->dhdr.widht; j+=8) {
             int count = 0;
             if (matrix[i][j] == '@') {
                 count += 128;
@@ -90,15 +87,31 @@ BMPFile* save(int n, BMPFile* bmpf, char matrix[128][128]) {
 
             //data[i] - 1 byte
             //получить число бит в сумме на 8 пикселей вперед добавить потом увеличить пос
-            new_bmpf.data[pos] = 255-count;
+            data[pos] = 255-count;
             pos++;
         }
     }
-    fptr = fopen("2.bmp", "w");
-    fwrite(&new_bmpf,sizeof (new_bmpf),1,fptr);
+    for (int i = 0; i < bmpf->dhdr.data_size; i++) {
+        bmpf->data[i] = data[i];
+    }
+    int size = sizeof( struct BMPFile);
+    char name[] = ".bmp";
+    char str [10];
+    snprintf(str, sizeof str, "%d", n);
+    strcat(str,name);
+    fptr = fopen(str, "w");
+    char *c = (char *)bmpf;
+    for (int i = 0; i < size; i++)
+    {
+        putc(*c++, fptr);
+    }
+    int size_data = bmpf->dhdr.data_size;
+    char *t = (char *)bmpf->data;
+    for (int i = 0; i < size_data; i++)
+    {
+        putc(*t++, fptr);
+    }
     fclose(fptr);
-    BMPFile* link = &new_bmpf;
-    return link;
 }
 
 void freeBMPfile(BMPFile* bmp_file) {
