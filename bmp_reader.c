@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
 #ifndef BMP_READER_C
 #define BMP_READER_C
 
@@ -46,6 +49,56 @@ BMPFile* load(char* fname) {
     fread(bmp_file->data,bmp_file->dhdr.data_size,1,fp);
     fclose(fp);
     return bmp_file;
+}
+
+BMPFile* save(int n, BMPFile* bmpf, char matrix[128][128]) {
+    FILE *fptr;
+    BMPFile new_bmpf;
+    new_bmpf.bhdr = bmpf->bhdr;
+    new_bmpf.dhdr = bmpf->dhdr;
+    new_bmpf.data = (unsigned char*)malloc(bmpf->dhdr.data_size);
+    //надо перенести значение матрицы в бмпшку и сохранить ее;
+    //биты слева направо снизу вверх
+    int pos = 0;
+    for (int i = 0; i < new_bmpf.dhdr.height; i++) {
+        for (int j = 0; j < new_bmpf.dhdr.widht; j+=8) {
+            int count = 0;
+            if (matrix[i][j] == '@') {
+                count += 128;
+            }
+            if (matrix[i][j+1] == '@') {
+                count += 64;
+            }
+            if (matrix[i][j+2] == '@') {
+                count += 32;
+            }
+            if (matrix[i][j+3] == '@') {
+                count += 16;
+            }
+            if (matrix[i][j+4] == '@') {
+                count += 8;
+            }
+            if (matrix[i][j+5] == '@') {
+                count += 4;
+            }
+            if (matrix[i][j+6] == '@') {
+                count += 2;
+            }
+            if (matrix[i][j+7] == '@') {
+                count++;
+            }
+
+            //data[i] - 1 byte
+            //получить число бит в сумме на 8 пикселей вперед добавить потом увеличить пос
+            new_bmpf.data[pos] = 255-count;
+            pos++;
+        }
+    }
+    fptr = fopen("2.bmp", "w");
+    fwrite(&new_bmpf,sizeof (new_bmpf),1,fptr);
+    fclose(fptr);
+    BMPFile* link = &new_bmpf;
+    return link;
 }
 
 void freeBMPfile(BMPFile* bmp_file) {

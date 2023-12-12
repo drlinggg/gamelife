@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdbool.h>
+#include <math.h>
 #include "bmp_reader.c"
 
 void printBMPHeaders(BMPFile* bmpf) {
@@ -33,23 +33,112 @@ void printBMPHeaders(BMPFile* bmpf) {
            bmpf->dhdr.imp_colors_count);
 }
 
-void printBMPPixels(BMPFile* bmpf) {
-    int data_size = bmpf->dhdr.widht*bmpf->dhdr.height*bmpf->dhdr.bits_per_pixel/8;
-    for (int i = 0; i < data_size; i++) {
-        if (i % 16 == 0) {
-            printf("\n");
+void printField(char field[128][128]) {
+    for (int i = 0; i < 128; i++) {
+        for (int j = 0; j < 128; j++) {
+            printf("%c", field[i][j]);
         }
-        printf("%02x ", bmpf->data[i]);
+        printf("\n");
+    }
+}
+
+void makeMatrix(BMPFile* bmpf, char matrix[128][128]) {
+    for (int i = 0; i < bmpf->dhdr.height; i++) {
+        for (int j = 0; j < bmpf->dhdr.widht/8; j++) {
+            int saved = bmpf->data[i * 16 + j];
+            //0 - 8 бит черных
+            //255 - 8 бит белых
+            // 127 = 255-128 - 1 черный и 7 белых
+            char bin[8] = {0};
+            int a = 7;
+            while (saved != 0) {
+                bin[a] = saved % 2;
+                saved /= 2;
+                a--;
+            }
+            for (int u = 0; u < 8; u++) {
+                if (bin[u] == 0) {
+                    if (j == 0) {
+                        matrix[i][j + u] = '@';
+                    } else {
+                        matrix[i][j * 8 - 8 + u] = '@';
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+void updateField(char matrix[128][128], BMPFile* bmpf) {
+    char new_matrix[128][128];
+    for (int i = 0; i < 128; i++) {
+        for (int j = 0; j < 128; j++) {
+            new_matrix[i][j] = matrix[i][j];
+        }
+    }
+    for (int i = 0; i < 128; i++) {
+        for (int j = 0; j < 128; j++) {
+            //matrix[i][j]
+            int count_alive_near = 0;
+            if (i > 0 && j > 0 && matrix[i-1][j-1] == '@') {
+                count_alive_near++;
+            }
+            if (i > 0 && matrix[i-1][j] == '@') {
+                count_alive_near++;
+            }
+            if (i > 0 && j < 128 && matrix[i-1][j+1] == '@') {
+                count_alive_near++;
+            }
+            if (j < 128 && matrix[i][j+1] == '@') {
+                count_alive_near++;
+            }
+            if (i < 128 && j < 128 && matrix[i+1][j+1] == '@') {
+                count_alive_near++;
+            }
+            if (i < 128 && matrix[i+1][j] == '@') {
+                count_alive_near++;
+            }
+            if (i < 128 && j > 0 && matrix[i+1][j-1] == '@') {
+                count_alive_near++;
+            }
+            if (j > 0 && matrix[i][j-1] == '@') {
+                count_alive_near++;
+            }
+            if (matrix[i][j] == '@' && (count_alive_near < 2 || count_alive_near > 3)) {
+                new_matrix[i][j] = ' ';
+            }
+            if (matrix[i][j] == ' ' && count_alive_near == 3) {
+                new_matrix[i][j] = '@';
+            }
+        }
+    }
+    for (int i = 0; i < 128; i++) {
+        for (int j = 0; j < 128; j++) {
+            matrix[i][j] = new_matrix[i][j];
+        }
     }
 }
 
 int main() {
-    bool field[100][100];
-    bool newfield[100][100];
+    char field[128][128];
+    for (int i = 0; i < 128; i++) {
+        for (int j = 0; j < 128; j++) {
+            field[i][j] = ' ';
+        }
+    }
     BMPFile* bmpf = load("field.bmp");
     printBMPHeaders(bmpf);
     printf("\n");
-    printBMPPixels(bmpf);
+    makeMatrix(bmpf, field);
+    printField(field);
+    updateField(field, bmpf);
+    printField(field);
+    /*
+    bmpf = save(2,bmpf,field);
+     */
+    updateField(field, bmpf);
+    printField(field);
     freeBMPfile(bmpf);
     return 0;
 }
