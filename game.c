@@ -121,6 +121,7 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
         }
     }
 }
+// game --input birds.bmp --output C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\ --max_iter 400 --pump_freq 1
 // C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\
 
 int main(int argc, char *argv[]) {
@@ -142,25 +143,25 @@ int main(int argc, char *argv[]) {
             }
             makeMatrix(bmpf, field);
         }
-        else if (strcmp(argv[i], "--output") == 0) {
+        if (strcmp(argv[i], "--output") == 0) {
             strcpy(outputlink,argv[i+1]);
             //printf(outputlink);
             //todo
         }
-        else if (strcmp(argv[i], "--max_iter") == 0) {
+        if (strcmp(argv[i], "--max_iter") == 0) {
             count_max = strtol(argv[i+1], NULL, 10);
         }
-        else if (strcmp(argv[i], "--dum_freq") == 0) {
+        if (strcmp(argv[i], "--dump_freq") == 0) {
             frequency = strtol(argv[i+1], NULL, 10);
         }
     }
     if (count_max == -1) {
-        count_max == 15;
+        count_max = 15;
     }
 
     for (int i = 0; i < count_max; i++) {
         updateField(field,bmpf);
-        if ((i+1) % frequency == 0) {
+        if (i % frequency == 0) {
             save(i+1,bmpf,field, outputlink);
         }
     }
