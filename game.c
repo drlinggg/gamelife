@@ -79,6 +79,7 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
             new_matrix[i][j] = matrix[i][j];
         }
     }
+    int count = 0;
     for (int i = 0; i < 128; i++) {
         for (int j = 0; j < 128; j++) {
             //matrix[i][j]
@@ -109,12 +110,17 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
             }
             if (matrix[i][j] == '@' && (count_alive_near < 2 || count_alive_near > 3)) {
                 new_matrix[i][j] = ' ';
+                count++;
             }
             if (matrix[i][j] == ' ' && count_alive_near == 3) {
                 new_matrix[i][j] = '@';
+                count++;
             }
         }
     }
+    if (count == 0) {
+        printf("game over");
+        exit(0);
     for (int i = 0; i < 128; i++) {
         for (int j = 0; j < 128; j++) {
             matrix[i][j] = new_matrix[i][j];
@@ -134,7 +140,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--input") == 0) {
             bmpf = load(argv[i+1]);
-            printBMPHeaders(bmpf);
+            //printBMPHeaders(bmpf);
             printf("\n");
             for (int i = 0; i < 128; i++) {
                 for (int j = 0; j < 128; j++) {
@@ -165,6 +171,7 @@ int main(int argc, char *argv[]) {
             save(i+1,bmpf,field, outputlink);
         }
     }
+    printf("game is ended");
     freeBMPfile(bmpf);
     return 0;
 }
