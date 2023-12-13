@@ -1,3 +1,0 @@
-C:/Users/User/Desktop/ucheba/lab_op/14lab/cmake-build-debug/CMakeFiles/game.c.dir
-C:/Users/User/Desktop/ucheba/lab_op/14lab/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/User/Desktop/ucheba/lab_op/14lab/cmake-build-debug/CMakeFiles/rebuild_cache.dir
