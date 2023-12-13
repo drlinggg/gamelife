@@ -51,7 +51,7 @@ BMPFile* load(char* fname) {
     return bmp_file;
 }
 
-void save(int n, BMPFile* bmpf, char matrix[128][128]) {
+void save(int n, BMPFile* bmpf, char matrix[128][128], char outputlink[1024]) {
     FILE *fptr;
     unsigned char* data = (unsigned char*)malloc(bmpf->dhdr.data_size);
     //надо перенести значение матрицы в бмпшку и сохранить ее;
@@ -95,11 +95,14 @@ void save(int n, BMPFile* bmpf, char matrix[128][128]) {
         bmpf->data[i] = data[i];
     }
     int size = sizeof( struct BMPFile);
-    char name[] = ".bmp";
-    char str [10];
-    snprintf(str, sizeof str, "%d", n);
-    strcat(str,name);
-    fptr = fopen(str, "w");
+    char format[] = ".bmp";
+    char name [1024];
+    char outputlinkcopy[1024];
+    strcpy(outputlinkcopy,outputlink);
+    snprintf(name, sizeof name, "%d", n);
+    strcat(name,format);
+    strcat(outputlinkcopy,name);
+    fptr = fopen(outputlinkcopy, "w");
     char *c = (char *)bmpf;
     for (int i = 0; i < size; i++)
     {

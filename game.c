@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "bmp_reader.c"
 
 void printBMPHeaders(BMPFile* bmpf) {
@@ -120,24 +121,49 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
         }
     }
 }
+// C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\
 
-int main() {
+int main(int argc, char *argv[]) {
+    int frequency = 1;
+    int count_max = -1;
+    char* name[100];
+    BMPFile *bmpf;
     char field[128][128];
-    for (int i = 0; i < 128; i++) {
-        for (int j = 0; j < 128; j++) {
-            field[i][j] = ' ';
+    char outputlink[1024];
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "--input") == 0) {
+            bmpf = load(argv[i+1]);
+            printBMPHeaders(bmpf);
+            printf("\n");
+            for (int i = 0; i < 128; i++) {
+                for (int j = 0; j < 128; j++) {
+                    field[i][j] = ' ';
+                }
+            }
+            makeMatrix(bmpf, field);
+        }
+        else if (strcmp(argv[i], "--output") == 0) {
+            strcpy(outputlink,argv[i+1]);
+            //printf(outputlink);
+            //todo
+        }
+        else if (strcmp(argv[i], "--max_iter") == 0) {
+            count_max = strtol(argv[i+1], NULL, 10);
+        }
+        else if (strcmp(argv[i], "--dum_freq") == 0) {
+            frequency = strtol(argv[i+1], NULL, 10);
         }
     }
-    BMPFile* bmpf = load("field.bmp");
-    printBMPHeaders(bmpf);
-    printf("\n");
-    makeMatrix(bmpf, field);
-
-    for (int i = 2; i < 100; i++) {
-        updateField(field, bmpf);
-        save(i,bmpf,field);
+    if (count_max == -1) {
+        count_max == 15;
     }
 
+    for (int i = 0; i < count_max; i++) {
+        updateField(field,bmpf);
+        if ((i+1) % frequency == 0) {
+            save(i+1,bmpf,field, outputlink);
+        }
+    }
     freeBMPfile(bmpf);
     return 0;
 }
