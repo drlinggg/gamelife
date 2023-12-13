@@ -108,11 +108,13 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
             if (j > 0 && matrix[i][j-1] == '@') {
                 count_alive_near++;
             }
+
+
             if (matrix[i][j] == '@' && (count_alive_near < 2 || count_alive_near > 3)) {
                 new_matrix[i][j] = ' ';
                 count++;
             }
-            if (matrix[i][j] == ' ' && count_alive_near == 3) {
+            else if (matrix[i][j] == ' ' && count_alive_near == 3) {
                 new_matrix[i][j] = '@';
                 count++;
             }
@@ -121,6 +123,7 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
     if (count == 0) {
         printf("game over");
         exit(0);
+    }
     for (int i = 0; i < 128; i++) {
         for (int j = 0; j < 128; j++) {
             matrix[i][j] = new_matrix[i][j];
@@ -141,7 +144,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "--input") == 0) {
             bmpf = load(argv[i+1]);
             //printBMPHeaders(bmpf);
-            printf("\n");
+            //printf("\n");
             for (int i = 0; i < 128; i++) {
                 for (int j = 0; j < 128; j++) {
                     field[i][j] = ' ';
