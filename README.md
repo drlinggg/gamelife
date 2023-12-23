@@ -2,7 +2,7 @@
 # arguments:
 - --input - start pos monochrome bmp 128x128
 - --output - saving library path
-- --max-iter - how many generations will be created (15 default)
+- --max_iter - how many generations will be created (15 default)
 - --pump-freq - frequence beetwen saving generations (all default)
 
 # Example:
