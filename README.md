@@ -4,7 +4,7 @@
 ![gg5c0fafb3e1 (1)](https://github.com/drlinggg/14labgamelife/assets/124909828/4c42d075-6edd-4fbd-a39f-68317114322b)
 
 - --input - start pos monochrome bmp 128x128
-- --output - saving library path
-- --max_iter - how many generations will be created (15 default)
+- --output - saving library path with \
+- --max-iter - how many generations will be created (15 default)
 - --pump-freq - frequence beetwen saving generations (all default)
-  
+- --help - help information
