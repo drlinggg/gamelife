@@ -133,7 +133,7 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
         }
     }
 }
-// game --input birds.bmp --output C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\ --max_iter 400 --pump_freq 1
+// game --input birds.bmp --output C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\ --max-iter 400 --pump_freq 1
 // C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\
 
 int main(int argc, char *argv[]) {
