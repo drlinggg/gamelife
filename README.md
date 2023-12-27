@@ -8,3 +8,5 @@
 - --max-iter - how many generations will be created (15 default)
 - --pump-freq - frequence beetwen saving generations (all default)
 - --help - help information
+
+Uses python gifmaker u can install by pip install gifmaker in cmd
