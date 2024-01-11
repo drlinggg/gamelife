@@ -5,8 +5,10 @@
 
 - --input - start pos monochrome bmp 128x128
 - --output - saving library path with \
-- --max-iter - how many generations will be created (15 default)
+- --max-iter - how many generations will be created
 - --pump-freq - frequence beetwen saving generations (all default)
 - --help - help information
-
-Uses python gifmaker u can install by pip install gifmaker in cmd
+- --draw - make ascii picture
+- --make-gif - saves gif of the game (doesnt work yet)
+- --print-data - print header data
+- uses: python gifmaker (gonna fix soon)
