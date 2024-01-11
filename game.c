@@ -39,7 +39,7 @@ void printBMPHeaders(BMPFile* bmpf) {
 
 void printField(char field[128][128]) {
     printf("\n");
-    for (int i = 0; i < 128; i++) {
+    for (int i = 127; i >= 0; i--) {
         for (int j = 0; j < 128; j++) {
             printf("%c", field[i][j]);
         }
@@ -133,12 +133,13 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
         }
     }
 }
-// game --input birds.bmp --output C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\ --max-iter 400 --pump_freq 1
+// game --input birds.bmp --output C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\ --max_iter 400 --pump_freq 1
 // C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\
 
 int main(int argc, char *argv[]) {
     int frequency = 1;
     int count_max = -1;
+    int make_gif = 0;
     char* name[100];
     BMPFile *bmpf;
     char field[128][128];
@@ -148,8 +149,11 @@ int main(int argc, char *argv[]) {
             printf("Game Life: \n");
             printf(" --input - start pos monochrome bmp 128x128\n"
                    " --output - saving library path with \n"
-                   " --max-iter - how many generations will be created (15 default)\n"
+                   " --max-iter - how many generations will be created\n"
                    " --pump-freq - frequence beetwen saving generations (1 default)\n"
+                   " --draw - make ascii picture\n"
+                   " --make-gif - saves gif of the game (doesnt work yet\n"
+                   " --print-data - print header data\n"
                    " uses: python gifmaker (gonna fix soon)\n"
                    " made by https://github.com/drlinggg\n"
                    );
@@ -166,6 +170,12 @@ int main(int argc, char *argv[]) {
             }
             makeMatrix(bmpf, field);
         }
+        if (strcmp(argv[i], "--make-gif") == 0) {
+            make_gif = 1;
+        }
+        if (strcmp(argv[i], "--draw") == 0) {
+            printField(field);
+        }
         if (strcmp(argv[i], "--output") == 0) {
             strcpy(outputlink,argv[i+1]);
         }
@@ -176,39 +186,40 @@ int main(int argc, char *argv[]) {
             frequency = strtol(argv[i+1], NULL, 10);
         }
     }
-    if (count_max == -1) {
-        count_max = 15;
-    }
-    printf("Trying to generate & save...\n");
-    for (int i = 0; i < count_max; i++) {
-        updateField(field,bmpf);
-        if (i % frequency == 0) {
-            save(i+1,bmpf,field, outputlink);
+    if (count_max != -1) {
+        printf("Trying to generate & save...\n");
+        for (int i = 0; i < count_max; i++) {
+            updateField(field, bmpf);
+            if (i % frequency == 0) {
+                save(i + 1, bmpf, field, outputlink);
+            }
         }
+        printf("Game generation is over\n");
     }
-    printf("Game generation is over\n");
-    printf("Trying to save gif...\n");
-    int count_len = 0;
-    char temp[1000];
-    for (int i = 0; i < count_max; i++) {
-        count_len += sprintf(temp, "%d", i);
+    if (make_gif) {
+        //todo fix gif saving
+        printf("Trying to save gif...\n");
+        int count_len = 0;
+        char temp[1000];
+        for (int i = 0; i < count_max; i++) {
+            count_len += sprintf(temp, "%d", i);
+        }
+        char makegifcommand[15] = "gifmaker -i ";
+        for (int i = 0; i < count_max; i++) {
+            char temp[10];
+            snprintf(temp, sizeof(temp), "%d", i + 1);
+            strcat(temp, ".bmp ");
+            strcat(makegifcommand, temp);
+        }
+        int result = chdir(outputlink);
+        if (result == 0) {
+            printf("Current directory changed successfully\n");
+        } else {
+            printf("Error: directory changing\n");
+            exit(1);
+        }
+        system(makegifcommand);
     }
-    char makegifcommand[15] = "gifmaker -i ";
-    for (int i = 0; i < count_max; i++) {
-        char temp[10];
-        snprintf(temp, sizeof(temp), "%d", i+1);
-        strcat(temp, ".bmp ");
-        strcat(makegifcommand, temp);
-    }
-    int result = chdir(outputlink);
-    if (result == 0) {
-        printf("Current directory changed successfully\n");
-    } else {
-        printf("Error: directory changing\n");
-        exit(1);
-    }
-    system(makegifcommand);
-    //todo fix gif saving
     freeBMPfile(bmpf);
     return 0;
 }
