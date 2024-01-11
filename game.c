@@ -133,8 +133,6 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
         }
     }
 }
-// game --input birds.bmp --output C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\ --max_iter 400 --pump_freq 1
-// C:\Users\User\Desktop\ucheba\lab_op\14lab\gamegenerations1\
 
 int main(int argc, char *argv[]) {
     int frequency = 1;
@@ -152,7 +150,7 @@ int main(int argc, char *argv[]) {
                    " --max-iter - how many generations will be created\n"
                    " --pump-freq - frequence beetwen saving generations (1 default)\n"
                    " --draw - make ascii picture\n"
-                   " --make-gif - saves gif of the game (doesnt work yet\n"
+                   " --make-gif - saves gif of the game (doesnt work yet)\n"
                    " --print-data - print header data\n"
                    " uses: python gifmaker (gonna fix soon)\n"
                    " made by https://github.com/drlinggg\n"
