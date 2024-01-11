@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
         }
         if (strcmp(argv[i], "--input") == 0) {
             bmpf = load(argv[i+1]);
-            printBMPHeaders(bmpf);
+            //printBMPHeaders(bmpf);
             printf("\n");
             for (int i = 0; i < 128; i++) {
                 for (int j = 0; j < 128; j++) {
