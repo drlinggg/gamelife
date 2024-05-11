@@ -4,7 +4,11 @@
 ![gg6c4017e9ad (1)](https://github.com/drlinggg/14labgamelife/assets/124909828/881d840a-82e5-4bce-9819-de1cd33c7ef5)
 
 - --input - start pos monochrome bmp 512x512
-- --output - saving library path with \ at the end
 - --max-iter - how many generations will be created
-- --pump-freq - frequence beetwen saving generations (every single one default)
-- --help - help information
+- --pump-freq - frequence beetwen saving generations (1 default)
+- --gif pastename.gif
+- --delay (gif delay attribute) --bmp - save generations in dir save as bmps (but no gif)
+- --output - saving library path (for --bmp)
+- --help for more information
+
+example: https://youtu.be/mjlEVkhqulY
