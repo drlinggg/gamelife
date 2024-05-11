@@ -3,7 +3,11 @@
 ![gg5c0fafb3e1 (1)](https://github.com/drlinggg/14labgamelife/assets/124909828/4c42d075-6edd-4fbd-a39f-68317114322b)
 ![gg6c4017e9ad (1)](https://github.com/drlinggg/14labgamelife/assets/124909828/881d840a-82e5-4bce-9819-de1cd33c7ef5)
 
-## commands & etc:
+# commands & etc:
+
+![image](https://github.com/drlinggg/gamelife/assets/124909828/881d4b5f-46e0-4047-b6ce-52c34fb933bd)
+
+
 - --input - start pos monochrome bmp 512x512
 - --max-iter - how many generations will be created
 - --pump-freq - frequence beetwen saving generations (1 default)
@@ -12,11 +16,13 @@
 - --output - saving library path (for --bmp)
 - --help for more information
 
-## example:
+# example:
 
- https://youtu.be/mjlEVkhqulY
+![test](https://github.com/drlinggg/gamelife/assets/124909828/82ffa8e0-0fe8-401d-9b2d-ebee96f1f658)
 
-## how to execute:
+https://youtu.be/mjlEVkhqulY
+
+# how to execute:
 
 just get together 3 files and build it, no more libs or anything like that
 btw i took gifmaker from this dude https://github.com/charlietangora/gif-h 
