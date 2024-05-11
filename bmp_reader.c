@@ -46,7 +46,7 @@ BMPFile* load(char* fname) {
     return bmp_file;
 }
 
-void save(int n, BMPFile* bmpf, char matrix[128][128], char outputlink[1024]) {
+void save(int n, BMPFile* bmpf, char matrix[512][512], char outputlink[1024]) {
     FILE *fptr;
     unsigned char* data = (unsigned char*)malloc(bmpf->dhdr.data_size);
     //надо перенести значение матрицы в бмпшку и сохранить ее;
