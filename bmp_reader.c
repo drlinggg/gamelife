@@ -2,10 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
 #ifndef BMP_READER_C
 #define BMP_READER_C
-
 #pragma pack(1)
 typedef struct BMPHeader {
     unsigned char ID[2];
@@ -13,7 +11,6 @@ typedef struct BMPHeader {
     unsigned char unused[4];
     unsigned int pixel_offset;
 } BMPHeader;
-
 typedef struct DIBHeader {
     unsigned int header_size;
     unsigned int widht;
@@ -27,14 +24,12 @@ typedef struct DIBHeader {
     unsigned int colors_count;
     unsigned int imp_colors_count;
 } DIBHeader;
-
 typedef struct BMPFile {
     BMPHeader bhdr;
     DIBHeader dhdr;
     unsigned char* data;
 } BMPFile;
 #pragma pop
-
 BMPFile* load(char* fname) {
     FILE* fp = fopen(fname, "r");
     if (!fp) {
@@ -51,7 +46,7 @@ BMPFile* load(char* fname) {
     return bmp_file;
 }
 
-void save(int n, BMPFile* bmpf, char matrix[512][512], char outputlink[512]) {
+void save(int n, BMPFile* bmpf, char matrix[128][128], char outputlink[1024]) {
     FILE *fptr;
     unsigned char* data = (unsigned char*)malloc(bmpf->dhdr.data_size);
     //надо перенести значение матрицы в бмпшку и сохранить ее;
@@ -84,6 +79,7 @@ void save(int n, BMPFile* bmpf, char matrix[512][512], char outputlink[512]) {
             if (matrix[i][j+7] == '@') {
                 count++;
             }
+
             //data[i] - 1 byte
             //получить число бит в сумме на 8 пикселей вперед добавить потом увеличить пос
             data[pos] = 255-count;
@@ -95,16 +91,13 @@ void save(int n, BMPFile* bmpf, char matrix[512][512], char outputlink[512]) {
     }
     int size = sizeof( struct BMPFile);
     char format[] = ".bmp";
-    char name [512];
-    char outputlinkcopy[512];
+    char name [1024];
+    char outputlinkcopy[1024];
     strcpy(outputlinkcopy,outputlink);
     snprintf(name, sizeof name, "%d", n);
     strcat(name,format);
     strcat(outputlinkcopy,name);
     fptr = fopen(outputlinkcopy, "w");
-    if (fptr == NULL) {
-        printf("%d",1);
-    }
     char *c = (char *)bmpf;
     for (int i = 0; i < size; i++)
     {
@@ -112,16 +105,15 @@ void save(int n, BMPFile* bmpf, char matrix[512][512], char outputlink[512]) {
     }
     int size_data = bmpf->dhdr.data_size;
     char *t = (char *)bmpf->data;
-    for (int i = 0; i < size_data; i++){
+    for (int i = 0; i < size_data; i++)
+    {
         putc(*t++, fptr);
     }
     fclose(fptr);
 }
-
 void freeBMPfile(BMPFile* bmp_file) {
     if (bmp_file) {
         free(bmp_file);
     }
 }
-
 #endif
