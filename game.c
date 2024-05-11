@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include "bmp_reader.c"
+#include "gif.h"
 #include <unistd.h>
 
 
@@ -69,12 +70,14 @@ void makeMatrix(BMPFile* bmpf, char matrix[512][512]) {
                         matrix[i][j * 8 - 8 + u] = '@';
                     }
                 }
+                else {
+                }
             }
         }
     }
 }
 
-void updateField(char matrix[512][512], BMPFile* bmpf) {
+void updateField(char matrix[512][512], BMPFile* bmpf, unsigned int fieldforgif[512*512]) {
     char new_matrix[512][512];
     for (int i = 0; i < 512; i++) {
         for (int j = 0; j < 512; j++) {
@@ -114,16 +117,18 @@ void updateField(char matrix[512][512], BMPFile* bmpf) {
 
             if (matrix[i][j] == '@' && (count_alive_near < 2 || count_alive_near > 3)) {
                 new_matrix[i][j] = ' ';
+                fieldforgif[i*512+j] = 0;
                 count++;
             }
             else if (matrix[i][j] == ' ' && count_alive_near == 3) {
                 new_matrix[i][j] = '@';
+                fieldforgif[i*512+j] = 255;
                 count++;
             }
         }
     }
     if (count == 0) {
-        printf("Game generation is over in stable position");
+        printf("%s","Game generation is over in stable position");
         exit(0);
     }
     for (int i = 0; i < 512; i++) {
@@ -136,87 +141,92 @@ void updateField(char matrix[512][512], BMPFile* bmpf) {
 int main(int argc, char *argv[]) {
     int frequency = 1;
     int count_max = -1;
+    int delay = 5;
     int make_gif = 0;
-    char* name[100];
+    int bmp = 0;
+    char* name = "sample_nice.gif";
+    GifWriter g;
     BMPFile *bmpf;
     char field[512][512];
+    unsigned int fieldforgif[512*512];
     char outputlink[1024];
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0) {
-                printf("Game Life: \n");
+            printf("Game Life: \n");
             printf(" --input - start pos monochrome bmp 512x512\n"
-                       " --output - saving library path with \n"
                        " --max-iter - how many generations will be created\n"
                        " --pump-freq - frequence beetwen saving generations (1 default)\n"
-                       " --draw - make ascii picture\n"
-                   " --make-gif - saves gif of the game (doesnt work yet)\n"
-                       " --print-data - print header data\n"
-                   " uses: python gifmaker (gonna fix soon)\n"
+                       " --gif pastename.gif\n"
+                       " --delay (gif delay attribute)"
+                       " --bmp - save generations in dir save as bmps (but no gif)\n"
+                       " --output - saving library path (for --bmp)  \n"
                        " made by https://github.com/drlinggg\n"
                 );
-                exit(0);
-            }
+            exit(0);
+        }
         if (strcmp(argv[i], "--input") == 0) {
-            bmpf = load(argv[i+1]);
-            //printBMPHeaders(bmpf);
-                printf("\n");
+            bmpf = load(argv[i + 1]);
+            printBMPHeaders(bmpf);
+            printf("\n");
             for (int i = 0; i < 512; i++) {
                 for (int j = 0; j < 512; j++) {
-                        field[i][j] = ' ';
-                    }
+                    field[i][j] = ' ';
                 }
-                makeMatrix(bmpf, field);
             }
-        if (strcmp(argv[i], "--make-gif") == 0) {
-            make_gif = 1;
-        }
-        if (strcmp(argv[i], "--draw") == 0) {
-            printField(field);
+            makeMatrix(bmpf, field);
         }
         if (strcmp(argv[i], "--output") == 0) {
             strcpy(outputlink,argv[i+1]);
-            }
+        }
         if (strcmp(argv[i], "--max-iter") == 0) {
             count_max = strtol(argv[i+1], NULL, 10);
-            }
+        }
         if (strcmp(argv[i], "--dump_freq") == 0) {
             frequency = strtol(argv[i+1], NULL, 10);
+        }
+        if (strcmp(argv[i], "--gif") == 0) {
+            make_gif = 1;
+            name = argv[i+1];
+        }
+        if (strcmp(argv[i], "--delay") == 0) {
+            delay = strtol(argv[i+1], NULL, 10);
+        }
+        if (strcmp(argv[i], "--bmp") == 0) {
+            bmp = 1;
+        }
+    }
+    int count = 0;
+    if (count_max != -1 && bmp) {
+        printf("Trying to generate & save...\n");
+        for (int i = 0; i < count_max; i++) {
+            if (count == count_max/10) {
+                count = 0;
+                printf("%s", "*");
+            }
+            count++;
+            updateField(field, bmpf, fieldforgif);
+            if (i % frequency == 0) {
+                save(i + 1, bmpf, field, outputlink);
             }
         }
-        if (count_max != -1) {
-            printf("Trying to generate & save...\n");
-            for (int i = 0; i < count_max; i++) {
-                updateField(field, bmpf);
-                if (i % frequency == 0) {
-                    save(i + 1, bmpf, field, outputlink);
-                }
-            }
-            printf("Game generation is over\n");
-        }
-    if (make_gif) {
-        //todo fix gif saving
+    }
+    else if (count_max != -1 && make_gif) {
         printf("Trying to save gif...\n");
-        int count_len = 0;
-        char temp[1000];
+        GifBegin(&g,name,512,512, delay,8,8);
         for (int i = 0; i < count_max; i++) {
-            count_len += sprintf(temp, "%d", i);
+            if (count == count_max/10) {
+                count = 0;
+                printf("%s", "*");
+            }
+            count++;
+            updateField(field, bmpf, fieldforgif);
+            if (i % frequency == 0) {
+                GifWriteFrame(&g, fieldforgif, 512, 512, delay,8,8);
+            }
         }
-        char makegifcommand[15] = "gifmaker -i ";
-        for (int i = 0; i < count_max; i++) {
-            char temp[10];
-            snprintf(temp, sizeof(temp), "%d", i + 1);
-            strcat(temp, ".bmp ");
-            strcat(makegifcommand, temp);
-        }
-        int result = chdir(outputlink);
-        if (result == 0) {
-            printf("Current directory changed successfully\n");
-        } else {
-            printf("Error: directory changing\n");
-            exit(1);
-        }
-        system(makegifcommand);
+        GifEnd(&g);
     }
     freeBMPfile(bmpf);
+    printf("\nGame generation is over\n");
     return 0;
 }
