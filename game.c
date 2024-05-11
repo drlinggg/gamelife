@@ -37,20 +37,20 @@ void printBMPHeaders(BMPFile* bmpf) {
            bmpf->dhdr.imp_colors_count);
 }
 
-void printField(char field[128][128]) {
+void printField(char field[512][512]) {
     printf("\n");
-    for (int i = 127; i >= 0; i--) {
-        for (int j = 0; j < 128; j++) {
+    for (int i = 511; i >= 0; i--) {
+        for (int j = 0; j < 512; j++) {
             printf("%c", field[i][j]);
         }
         printf("\n");
     }
 }
 
-void makeMatrix(BMPFile* bmpf, char matrix[128][128]) {
+void makeMatrix(BMPFile* bmpf, char matrix[512][512]) {
     for (int i = 0; i < bmpf->dhdr.height; i++) {
         for (int j = 0; j < bmpf->dhdr.widht/8; j++) {
-            int saved = bmpf->data[i * 16 + j];
+            int saved = bmpf->data[i * 64 + j];
             //0 - 8 бит черных
             //255 - 8 бит белых
             // 127 = 255-128 - 1 черный и 7 белых
@@ -74,16 +74,16 @@ void makeMatrix(BMPFile* bmpf, char matrix[128][128]) {
     }
 }
 
-void updateField(char matrix[128][128], BMPFile* bmpf) {
-    char new_matrix[128][128];
-    for (int i = 0; i < 128; i++) {
-        for (int j = 0; j < 128; j++) {
+void updateField(char matrix[512][512], BMPFile* bmpf) {
+    char new_matrix[512][512];
+    for (int i = 0; i < 512; i++) {
+        for (int j = 0; j < 512; j++) {
             new_matrix[i][j] = matrix[i][j];
         }
     }
     int count = 0;
-    for (int i = 0; i < 128; i++) {
-        for (int j = 0; j < 128; j++) {
+    for (int i = 0; i < 512; i++) {
+        for (int j = 0; j < 512; j++) {
             //matrix[i][j]
             int count_alive_near = 0;
             if (i > 0 && j > 0 && matrix[i-1][j-1] == '@') {
@@ -92,19 +92,19 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
             if (i > 0 && matrix[i-1][j] == '@') {
                 count_alive_near++;
             }
-            if (i > 0 && j < 128 && matrix[i-1][j+1] == '@') {
+            if (i > 0 && j < 512 && matrix[i-1][j+1] == '@') {
                 count_alive_near++;
             }
-            if (j < 128 && matrix[i][j+1] == '@') {
+            if (j < 512 && matrix[i][j+1] == '@') {
                 count_alive_near++;
             }
-            if (i < 128 && j < 128 && matrix[i+1][j+1] == '@') {
+            if (i < 512 && j < 512 && matrix[i+1][j+1] == '@') {
                 count_alive_near++;
             }
-            if (i < 128 && matrix[i+1][j] == '@') {
+            if (i < 512 && matrix[i+1][j] == '@') {
                 count_alive_near++;
             }
-            if (i < 128 && j > 0 && matrix[i+1][j-1] == '@') {
+            if (i < 512 && j > 0 && matrix[i+1][j-1] == '@') {
                 count_alive_near++;
             }
             if (j > 0 && matrix[i][j-1] == '@') {
@@ -126,8 +126,8 @@ void updateField(char matrix[128][128], BMPFile* bmpf) {
         printf("Game generation is over in stable position");
         exit(0);
     }
-    for (int i = 0; i < 128; i++) {
-        for (int j = 0; j < 128; j++) {
+    for (int i = 0; i < 512; i++) {
+        for (int j = 0; j < 512; j++) {
             matrix[i][j] = new_matrix[i][j];
         }
     }
@@ -139,12 +139,12 @@ int main(int argc, char *argv[]) {
     int make_gif = 0;
     char* name[100];
     BMPFile *bmpf;
-    char field[128][128];
+    char field[512][512];
     char outputlink[1024];
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0) {
                 printf("Game Life: \n");
-            printf(" --input - start pos monochrome bmp 128x128\n"
+            printf(" --input - start pos monochrome bmp 512x512\n"
                        " --output - saving library path with \n"
                        " --max-iter - how many generations will be created\n"
                        " --pump-freq - frequence beetwen saving generations (1 default)\n"
@@ -160,8 +160,8 @@ int main(int argc, char *argv[]) {
             bmpf = load(argv[i+1]);
             //printBMPHeaders(bmpf);
                 printf("\n");
-            for (int i = 0; i < 128; i++) {
-                for (int j = 0; j < 128; j++) {
+            for (int i = 0; i < 512; i++) {
+                for (int j = 0; j < 512; j++) {
                         field[i][j] = ' ';
                     }
                 }
