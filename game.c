@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <unistd.h>
 #include "bmp_reader.c"
+#include <unistd.h>
 
 
 void printBMPHeaders(BMPFile* bmpf) {
@@ -37,20 +37,20 @@ void printBMPHeaders(BMPFile* bmpf) {
            bmpf->dhdr.imp_colors_count);
 }
 
-void printField(char field[512][512]) {
+void printField(char field[128][128]) {
     printf("\n");
-    for (int i = 511; i >= 0; i--) {
-        for (int j = 0; j < 512; j++) {
+    for (int i = 127; i >= 0; i--) {
+        for (int j = 0; j < 128; j++) {
             printf("%c", field[i][j]);
         }
         printf("\n");
     }
 }
 
-void makeMatrix(BMPFile* bmpf, char matrix[512][512]) {
+void makeMatrix(BMPFile* bmpf, char matrix[128][128]) {
     for (int i = 0; i < bmpf->dhdr.height; i++) {
         for (int j = 0; j < bmpf->dhdr.widht/8; j++) {
-            int saved = bmpf->data[i * 32 + j];
+            int saved = bmpf->data[i * 16 + j];
             //0 - 8 бит черных
             //255 - 8 бит белых
             // 127 = 255-128 - 1 черный и 7 белых
@@ -70,21 +70,20 @@ void makeMatrix(BMPFile* bmpf, char matrix[512][512]) {
                     }
                 }
             }
-
         }
     }
 }
 
-void updateField(char matrix[512][512], BMPFile* bmpf) {
-    char new_matrix[512][512];
-    for (int i = 0; i < 512; i++) {
-        for (int j = 0; j < 512; j++) {
+void updateField(char matrix[128][128], BMPFile* bmpf) {
+    char new_matrix[128][128];
+    for (int i = 0; i < 128; i++) {
+        for (int j = 0; j < 128; j++) {
             new_matrix[i][j] = matrix[i][j];
         }
     }
     int count = 0;
-    for (int i = 0; i < 512; i++) {
-        for (int j = 0; j < 512; j++) {
+    for (int i = 0; i < 128; i++) {
+        for (int j = 0; j < 128; j++) {
             //matrix[i][j]
             int count_alive_near = 0;
             if (i > 0 && j > 0 && matrix[i-1][j-1] == '@') {
@@ -93,24 +92,26 @@ void updateField(char matrix[512][512], BMPFile* bmpf) {
             if (i > 0 && matrix[i-1][j] == '@') {
                 count_alive_near++;
             }
-            if (i > 0 && j < 512 && matrix[i-1][j+1] == '@') {
+            if (i > 0 && j < 128 && matrix[i-1][j+1] == '@') {
                 count_alive_near++;
             }
-            if (j < 512 && matrix[i][j+1] == '@') {
+            if (j < 128 && matrix[i][j+1] == '@') {
                 count_alive_near++;
             }
-            if (i < 512 && j < 512 && matrix[i+1][j+1] == '@') {
+            if (i < 128 && j < 128 && matrix[i+1][j+1] == '@') {
                 count_alive_near++;
             }
-            if (i < 512 && matrix[i+1][j] == '@') {
+            if (i < 128 && matrix[i+1][j] == '@') {
                 count_alive_near++;
             }
-            if (i < 512 && j > 0 && matrix[i+1][j-1] == '@') {
+            if (i < 128 && j > 0 && matrix[i+1][j-1] == '@') {
                 count_alive_near++;
             }
             if (j > 0 && matrix[i][j-1] == '@') {
                 count_alive_near++;
             }
+
+
             if (matrix[i][j] == '@' && (count_alive_near < 2 || count_alive_near > 3)) {
                 new_matrix[i][j] = ' ';
                 count++;
@@ -123,60 +124,63 @@ void updateField(char matrix[512][512], BMPFile* bmpf) {
     }
     if (count == 0) {
         printf("Game generation is over in stable position");
+        exit(0);
     }
-    for (int i = 0; i < 512; i++) {
-        for (int j = 0; j < 512; j++) {
+    for (int i = 0; i < 128; i++) {
+        for (int j = 0; j < 128; j++) {
             matrix[i][j] = new_matrix[i][j];
         }
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     int frequency = 1;
     int count_max = -1;
+    int make_gif = 0;
     char* name[100];
     BMPFile *bmpf;
-    char field[512][512];
-    char outputlink[512];
-    while (count_max != -1) {
-        char* command[100];
-        scanf("%s", command);
-            if (strcmp(command, "--help") == 0) {
+    char field[128][128];
+    char outputlink[1024];
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0) {
                 printf("Game Life: \n");
-                printf(" --input - start pos monochrome bmp 512x512\n"
+            printf(" --input - start pos monochrome bmp 128x128\n"
                        " --output - saving library path with \n"
                        " --max-iter - how many generations will be created\n"
                        " --pump-freq - frequence beetwen saving generations (1 default)\n"
                        " --draw - make ascii picture\n"
+                   " --make-gif - saves gif of the game (doesnt work yet)\n"
                        " --print-data - print header data\n"
+                   " uses: python gifmaker (gonna fix soon)\n"
                        " made by https://github.com/drlinggg\n"
                 );
                 exit(0);
             }
-            if (strcmp(command, "--input") == 0) {
-                scanf("%s", command);
-                bmpf = load(command);
-                printBMPHeaders(bmpf);
+        if (strcmp(argv[i], "--input") == 0) {
+            bmpf = load(argv[i+1]);
+            //printBMPHeaders(bmpf);
                 printf("\n");
-                for (int i = 0; i < 512; i++) {
-                    for (int j = 0; j < 512; j++) {
+            for (int i = 0; i < 128; i++) {
+                for (int j = 0; j < 128; j++) {
                         field[i][j] = ' ';
                     }
                 }
                 makeMatrix(bmpf, field);
             }
-            if (strcmp(command, "--output") == 0) {
-                scanf("%s", command);
-                strcpy(outputlink, command);
+        if (strcmp(argv[i], "--make-gif") == 0) {
+            make_gif = 1;
+        }
+        if (strcmp(argv[i], "--draw") == 0) {
+            printField(field);
+        }
+        if (strcmp(argv[i], "--output") == 0) {
+            strcpy(outputlink,argv[i+1]);
             }
-            if (strcmp(command, "--max-iter") == 0) {
-                scanf("%s", command);
-                count_max = strtol(command, NULL, 10);
+        if (strcmp(argv[i], "--max-iter") == 0) {
+            count_max = strtol(argv[i+1], NULL, 10);
             }
-            if (strcmp(command, "--dump-freq") == 0) {
-                scanf("%s", command);
-                frequency = strtol(command, NULL, 10);
-                break;
+        if (strcmp(argv[i], "--dump_freq") == 0) {
+            frequency = strtol(argv[i+1], NULL, 10);
             }
         }
         if (count_max != -1) {
@@ -189,6 +193,30 @@ int main() {
             }
             printf("Game generation is over\n");
         }
+    if (make_gif) {
+        //todo fix gif saving
+        printf("Trying to save gif...\n");
+        int count_len = 0;
+        char temp[1000];
+        for (int i = 0; i < count_max; i++) {
+            count_len += sprintf(temp, "%d", i);
+        }
+        char makegifcommand[15] = "gifmaker -i ";
+        for (int i = 0; i < count_max; i++) {
+            char temp[10];
+            snprintf(temp, sizeof(temp), "%d", i + 1);
+            strcat(temp, ".bmp ");
+            strcat(makegifcommand, temp);
+        }
+        int result = chdir(outputlink);
+        if (result == 0) {
+            printf("Current directory changed successfully\n");
+        } else {
+            printf("Error: directory changing\n");
+            exit(1);
+        }
+        system(makegifcommand);
+    }
     freeBMPfile(bmpf);
     return 0;
 }
