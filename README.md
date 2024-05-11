@@ -8,5 +8,4 @@
 - --max-iter - how many generations will be created
 - --pump-freq - frequence beetwen saving generations (every single one default)
 - --help - help information
-- --draw - make ascii picture
 - --print-data - print header data
