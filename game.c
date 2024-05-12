@@ -115,12 +115,12 @@ void updateField(char matrix[512][512], unsigned int fieldforgif[512*512]) {
 
             if (matrix[i][j] == '@' && (count_alive_near < 2 || count_alive_near > 3)) {
                 new_matrix[i][j] = ' ';
-                fieldforgif[i*512+j] = 0;
+                fieldforgif[(511-i)*512+j] = 0;
                 count++;
             }
             else if (matrix[i][j] == ' ' && count_alive_near == 3) {
                 new_matrix[i][j] = '@';
-                fieldforgif[i*512+j] = 255;
+                fieldforgif[(511-i)*512+j] = 255;
                 count++;
             }
         }
@@ -137,12 +137,12 @@ void updateField(char matrix[512][512], unsigned int fieldforgif[512*512]) {
 }
 
 int main(int argc, char *argv[]) {
-    int frequency = 1;
-    int count_max = -1;
-    int delay = 5;
-    int make_gif = 0;
-    int bmp = 0;
-    char* name = "sample_nice.gif";
+    unsigned int frequency = 1;
+    unsigned int count_max = 0;
+    unsigned int delay = 5;
+    bool make_gif = 0;
+    bool bmp = 0;
+    char* name;
     GifWriter g;
     BMPFile *bmpf;
     char field[512][512];
@@ -214,10 +214,10 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < 512; i++) {
             for (int j = 0; j < 512; j++) {
                 if (field[i][j] == ' ') {
-                    fieldforgif[i*512+j] = 0;
+                    fieldforgif[(511-i)*512+j] = 0;
                 }
                 else {
-                    fieldforgif[i*512+j] = 255;
+                    fieldforgif[(511-i)*512+j] = 255;
                 }
             }
         }
