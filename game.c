@@ -1,9 +1,7 @@
 #include <stdio.h>
-#include <math.h>
 #include <string.h>
 #include "bmp_reader.c"
 #include "gif.h"
-#include <unistd.h>
 
 
 void printBMPHeaders(BMPFile* bmpf) {
@@ -77,7 +75,7 @@ void makeMatrix(BMPFile* bmpf, char matrix[512][512]) {
     }
 }
 
-void updateField(char matrix[512][512], BMPFile* bmpf, unsigned int fieldforgif[512*512]) {
+void updateField(char matrix[512][512], unsigned int fieldforgif[512*512]) {
     char new_matrix[512][512];
     for (int i = 0; i < 512; i++) {
         for (int j = 0; j < 512; j++) {
@@ -95,19 +93,19 @@ void updateField(char matrix[512][512], BMPFile* bmpf, unsigned int fieldforgif[
             if (i > 0 && matrix[i-1][j] == '@') {
                 count_alive_near++;
             }
-            if (i > 0 && j < 512 && matrix[i-1][j+1] == '@') {
+            if (i > 0 && j < 511 && matrix[i-1][j+1] == '@') {
                 count_alive_near++;
             }
-            if (j < 512 && matrix[i][j+1] == '@') {
+            if (j < 511 && matrix[i][j+1] == '@') {
                 count_alive_near++;
             }
-            if (i < 512 && j < 512 && matrix[i+1][j+1] == '@') {
+            if (i < 511 && j < 511 && matrix[i+1][j+1] == '@') {
                 count_alive_near++;
             }
-            if (i < 512 && matrix[i+1][j] == '@') {
+            if (i < 511 && matrix[i+1][j] == '@') {
                 count_alive_near++;
             }
-            if (i < 512 && j > 0 && matrix[i+1][j-1] == '@') {
+            if (i < 511 && j > 0 && matrix[i+1][j-1] == '@') {
                 count_alive_near++;
             }
             if (j > 0 && matrix[i][j-1] == '@') {
@@ -197,31 +195,42 @@ int main(int argc, char *argv[]) {
     }
     int count = 0;
     if (count_max != -1 && bmp) {
-        printf("Trying to generate & save...\n");
+        printf("Trying to generate & save bmps...\n");
         for (int i = 0; i < count_max; i++) {
             if (count == count_max/10) {
                 count = 0;
                 printf("%s", "*");
             }
             count++;
-            updateField(field, bmpf, fieldforgif);
+            updateField(field, fieldforgif);
             if (i % frequency == 0) {
                 save(i + 1, bmpf, field, outputlink);
             }
         }
     }
     else if (count_max != -1 && make_gif) {
-        printf("Trying to save gif...\n");
+        printf("Trying to generate & save gif...\n");
         GifBegin(&g,name,512,512, delay,8,8);
+        for (int i = 0; i < 512; i++) {
+            for (int j = 0; j < 512; j++) {
+                if (field[i][j] == ' ') {
+                    fieldforgif[i*512+j] = 0;
+                }
+                else {
+                    fieldforgif[i*512+j] = 255;
+                }
+            }
+        }
+        GifWriteFrame(&g, (const uint8_t *) fieldforgif, 512, 512, delay, 8, 8);
         for (int i = 0; i < count_max; i++) {
             if (count == count_max/10) {
                 count = 0;
                 printf("%s", "*");
             }
             count++;
-            updateField(field, bmpf, fieldforgif);
+            updateField(field, fieldforgif);
             if (i % frequency == 0) {
-                GifWriteFrame(&g, fieldforgif, 512, 512, delay,8,8);
+                GifWriteFrame(&g, (const uint8_t *) fieldforgif, 512, 512, delay, 8, 8);
             }
         }
         GifEnd(&g);
