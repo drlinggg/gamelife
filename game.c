@@ -151,14 +151,14 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0) {
             printf("Game Life: \n");
-            printf(" --input - start pos monochrome bmp 512x512\n"
-                       " --max-iter - how many generations will be created\n"
-                       " --pump-freq - frequence beetwen saving generations (1 default)\n"
-                       " --gif pastename.gif\n"
-                       " --delay (gif delay attribute)"
-                       " --bmp - save generations in dir save as bmps (but no gif)\n"
-                       " --output - saving library path (for --bmp)  \n"
-                       " made by https://github.com/drlinggg\n"
+            printf("- --input - monochrome bmp file 512x512 (ex. picture.bmp)\n"
+" --max-iter - how many generations will be created (ex. 5)\n"
+" --pump-freq - frequence beetwen saving generations (1 default) (ex. 3)\n"
+" --gif - save generations in gif file (ex. newGame.gif)\n"
+" --delay - gif delay attribute if choosen (ex. 2)\n"
+" --bmp - save generations in output as bmps (no attribute)\n"
+" --output - saving library path (for --bmp) (ex. /save/)\n"
+" --help - prints this table\n"
                 );
             exit(0);
         }
